@@ -1,6 +1,8 @@
-### tdesc
+## tdesc
 
 Image processing tools
+
+### Models
 
 #### VGG16
 
@@ -26,6 +28,8 @@ to `h5py` file.
 
     cat filenames | ./runner.py --model dlib_face --outpath faces.h5
 ```
+
+### Details
 
 #### Threaded IO
 
