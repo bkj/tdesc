@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 
 """
@@ -11,16 +10,18 @@ import urllib
 import cStringIO
 import numpy as np
 
-# VGG16 featurization
-from keras.applications import VGG16
-from keras.models import Model
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input
+def import_VGG16Worker():
+    from keras.applications import VGG16
+    from keras.models import Model
+    from keras.preprocessing import image
+    from keras.applications.vgg16 import preprocess_input
 
-# Face featurization
-import dlib
-import h5py
-from skimage import io
+def import_DlibFaceWorker():
+    import dlib
+    import h5py
+    from skimage import io
+
+# --
 
 class VGG16Worker(object):
     """ 
@@ -30,6 +31,7 @@ class VGG16Worker(object):
     """
     
     def __init__(self, crow, target_dim=224):
+        import_VGG16Worker()
         if crow:
             self.model = VGG16(weights='imagenet', include_top=False)
         else:
@@ -74,10 +76,18 @@ class DlibFaceWorker(object):
         compute dlib face descriptors 
     """
     
-    def __init__(self, outpath, shapepath, facepath):
+    def __init__(self, outpath):
+        import_DlibFaceWorker()
         self.detector = dlib.get_frontal_face_detector()
+        
+        ppath = os.path.dirname(os.path.realpath(__file__))
+        
+        shapepath = os.path.join(ppath, 'models/dlib/shape_predictor_68_face_landmarks.dat')
         self.sp = dlib.shape_predictor(shapepath)
+        
+        facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
+        
         self.db = h5py.File(outpath)
     
     def imread(self, path):
@@ -95,4 +105,3 @@ class DlibFaceWorker(object):
     
     def close(self):
         self.db.close()
-
