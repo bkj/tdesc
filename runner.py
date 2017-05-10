@@ -40,13 +40,13 @@ def prep_images(in_, out_, imread, timeout):
     while True:
         try:
             path = in_.get(timeout=timeout)
-            # try:
-            img = imread(path)
-            out_.put((path, img))
-            # except KeyboardInterrupt:
-            #     raise
-            # except:
-            #     print >> sys.stderr, "prep_images: Error at %s" % path
+            try:
+                img = imread(path)
+                out_.put((path, img))
+            except KeyboardInterrupt:
+                raise
+            except:
+                print >> sys.stderr, "prep_images: Error at %s" % path
         
         except KeyboardInterrupt:
             raise
@@ -70,8 +70,6 @@ if __name__ == "__main__":
         worker = DlibFaceWorker(args.outpath)
     else:
         raise Exception()
-    
-    # imread = worker.get_imread()
     
     # Thread to read filenames from stdin
     filenames = Queue()
