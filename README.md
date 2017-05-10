@@ -19,10 +19,7 @@ Takes list of filenames, writes filename + descriptor to TSV.
 
 #### `dlib` face descriptors
 
-Takes list of filenames, writes
-    - extracted face images
-    - face descriptors
-to `h5py` file.
+Takes list of filenames, writes filename + descriptor to TSV.
 
 ```
 
@@ -60,7 +57,7 @@ These are benchmarks on my system, reading images over the network.  The boost y
 
     
     # One thread
-    cat urls | ./runner.py --crow --n-threads 1 > /dev/null
+    cat urls | ./runner.py --crow --io-threads 1 > /dev/null
     
         Using Theano backend.
         Using cuDNN version 5110 on context None
@@ -79,14 +76,14 @@ These are benchmarks on my system, reading images over the network.  The boost y
     
     
     # Two threads
-    cat urls | ./runner.py --crow --n-threads 2 > /dev/null
+    cat urls | ./runner.py --crow --io-threads 2 > /dev/null
     
         ...
         900 images | 15.679864 seconds
         1000 images | 17.494891 seconds
     
     # Four threads
-    cat urls | ./runner.py --crow --n-threads 4 > /dev/null
+    cat urls | ./runner.py --crow --io-threads 4 > /dev/null
         
         ...    
         900 images | 7.591560 seconds

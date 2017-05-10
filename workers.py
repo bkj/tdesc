@@ -10,16 +10,24 @@ import urllib
 import cStringIO
 import numpy as np
 
-# vgg16
-from keras.applications import VGG16
-from keras.models import Model
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input
+def import_VGG16():
+    """ hacky -- but don't want to load keras unless I have to """
+    global VGG16
+    global Model
+    global image
+    global preprocess_input
+    from keras.applications import VGG16
+    from keras.models import Model
+    from keras.preprocessing import image
+    from keras.applications.vgg16 import preprocess_input
 
-# dlib
-import dlib
-import h5py
-from skimage import io
+def import_dlib():
+    global dlib
+    global h5py
+    global io
+    import dlib
+    import h5py
+    from skimage import io
 
 # --
 
@@ -31,6 +39,7 @@ class VGG16Worker(object):
     """
     
     def __init__(self, crow, target_dim=224):
+        import_VGG16()
         if crow:
             self.model = VGG16(weights='imagenet', include_top=False)
         else:
@@ -64,6 +73,7 @@ class VGG16Worker(object):
             feat = feat.sum(axis=(0, 1))
         
         print '\t'.join((path, '\t'.join(map(str, feat))))
+        sys.stdout.flush()
     
     def close(self):
         pass
@@ -74,8 +84,8 @@ class DlibFaceWorker(object):
         compute dlib face descriptors 
     """
     
-    def __init__(self, outpath):
-        import_DlibFaceWorker()
+    def __init__(self, outpath, use_h5py=False):
+        import_dlib()
         self.detector = dlib.get_frontal_face_detector()
         
         ppath = os.path.dirname(os.path.realpath(__file__))
@@ -86,7 +96,11 @@ class DlibFaceWorker(object):
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
-        self.db = h5py.File(outpath)
+        if use_h5py:
+            self.db = h5py.File(outpath)
+        
+        self.use_h5py = use_h5py
+        
         print >> sys.stderr, 'DlibFaceWorker: ready'
     
     def imread(self, path):
@@ -99,8 +113,19 @@ class DlibFaceWorker(object):
         for k,d in enumerate(dets):
             shape = self.sp(img, d)
             face_descriptor = self.facerec.compute_face_descriptor(img, shape, 10)
-            self.db['%s/%d/feat' % (os.path.basename(path), k)] = np.array(face_descriptor)
-            self.db['%s/%d/img' % (os.path.basename(path), k)] = img[d.top():d.bottom(),d.left():d.right()]
+            
+            if self.use_h5py:
+                self.db['%s/%d/feat' % (os.path.basename(path), k)] = np.array(face_descriptor)
+                self.db['%s/%d/img' % (os.path.basename(path), k)] = img[d.top():d.bottom(),d.left():d.right()]
+            else:
+                print '\t'.join((
+                    path, 
+                    str(k),
+                    '\t'.join(map(str, [d.top(),d.bottom(),d.left(),d.right()])), 
+                    '\t'.join(map(str, face_descriptor))
+                ))
+                sys.stdout.flush()
     
     def close(self):
-        self.db.close()
+        if self.use_h5py:
+            self.db.close()

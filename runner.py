@@ -24,7 +24,7 @@ from workers import VGG16Worker, DlibFaceWorker
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='vgg16')
-    parser.add_argument('--n-threads', type=int, default=3)
+    parser.add_argument('--io-threads', type=int, default=3)
     parser.add_argument('--timeout', type=int, default=10)
     
     # VGG16 options
@@ -36,7 +36,11 @@ def parse_args():
 # --
 # Threaded IO
 
-def prep_images(in_, out_, imread, timeout):
+def read_stdin(gen, out_):
+    for line in gen:
+        out_.put(line.strip())
+
+def do_io(in_, out_, imread, timeout):
     while True:
         try:
             path = in_.get(timeout=timeout)
@@ -46,7 +50,7 @@ def prep_images(in_, out_, imread, timeout):
             except KeyboardInterrupt:
                 raise
             except:
-                print >> sys.stderr, "prep_images: Error at %s" % path
+                print >> sys.stderr, "do_io: Error at %s" % path
         
         except KeyboardInterrupt:
             raise
@@ -54,9 +58,28 @@ def prep_images(in_, out_, imread, timeout):
         except Empty:
             return
 
-def read_stdin(gen, out_):
-    for line in gen:
-        out_.put(line.strip())
+def do_work(worker, io_queue, print_interval=25):
+    i = 0
+    start_time = time()
+    while True:
+        
+        try:
+            path, obj = processed_images.get(timeout=args.timeout)
+            worker.featurize(path, obj)
+            
+            i += 1
+            if not i % print_interval:
+                print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+            
+        except KeyboardInterrupt:
+            raise
+            os._exit(0)
+        except Empty:
+            worker.close()
+            os._exit(0)
+        except Exception as e:
+            raise e
+            os._exit(0)
 
 # --
 # Run
@@ -79,30 +102,8 @@ if __name__ == "__main__":
     
     # Thread to load images    
     processed_images = Queue()
-    image_processors = [Process(target=prep_images, args=(filenames, processed_images, worker.imread, args.timeout)) for _ in range(args.n_threads)]
+    image_processors = [Process(target=do_io, args=(filenames, processed_images, worker.imread, args.timeout)) for _ in range(args.io_threads)]
     for image_processor in image_processors:
         image_processor.start()
     
-    i = 0
-    start_time = time()
-    while True:
-        
-        try:
-            path, obj = processed_images.get(timeout=args.timeout)
-            worker.featurize(path, obj)
-            
-            i += 1
-            if not i % 100:
-                print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
-            
-        except KeyboardInterrupt:
-            raise
-            os._exit(0)
-        except Empty:
-            worker.close()
-            os._exit(0)
-        except Exception as e:
-            raise e
-            os._exit(0)
-    
-    print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+    do_work(worker, processed_images)
