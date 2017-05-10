@@ -11,11 +11,11 @@ import urllib
 import cStringIO
 import numpy as np
 
-# # VGG16 featurization
-# from keras.applications import VGG16
-# from keras.models import Model
-# from keras.preprocessing import image
-# from keras.applications.vgg16 import preprocess_input
+# VGG16 featurization
+from keras.applications import VGG16
+from keras.models import Model
+from keras.preprocessing import image
+from keras.applications.vgg16 import preprocess_input
 
 # Face featurization
 import dlib
@@ -23,6 +23,11 @@ import h5py
 from skimage import io
 
 class VGG16Worker(object):
+    """ 
+        compute late VGG16 features
+        
+        either densely connected (default) or crow (sum-pooled conv5)
+    """
     
     def __init__(self, crow, target_dim=224):
         if crow:
@@ -63,7 +68,11 @@ class VGG16Worker(object):
     def close(self):
         pass
 
+
 class DlibFaceWorker(object):
+    """ 
+        compute dlib face descriptors 
+    """
     
     def __init__(self, outpath, shapepath, facepath):
         self.detector = dlib.get_frontal_face_detector()
