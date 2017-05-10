@@ -16,7 +16,7 @@ from time import time
 from multiprocessing import Process, Queue
 from Queue import Empty
 
-from workers import VGG16Worker
+from workers import VGG16Worker, DlibFaceWorker
 
 # --
 # Init
@@ -26,7 +26,14 @@ def parse_args():
     parser.add_argument('--model', type=str, default='vgg16')
     parser.add_argument('--n-threads', type=int, default=3)
     parser.add_argument('--timeout', type=int, default=10)
+    
+    # VGG16 options
     parser.add_argument('--crow', action="store_true")
+    # DlibFace options
+    parser.add_argument('--facepath', type=str, default='./db.h5')
+    parser.add_argument('--shapepath', type=str, default='./models/shape_predictor_68_face_landmarks.dat')
+    parser.add_argument('--facepath', type=str, default='./models/dlib_face_recognition_resnet_model_v1.dat')
+    
     return parser.parse_args()
 
 # --
@@ -36,13 +43,13 @@ def prep_images(in_, out_, imread, timeout):
     while True:
         try:
             path = in_.get(timeout=timeout)
-            # try:
-            img = imread(path)
-            out_.put((path, img))
-            # except KeyboardInterrupt:
-            #     raise
-            # except:
-            #     print >> sys.stderr, "prep_images: Error at %s" % path
+            try:
+                img = imread(path)
+                out_.put((path, img))
+            except KeyboardInterrupt:
+                raise
+            except:
+                print >> sys.stderr, "prep_images: Error at %s" % path
         
         except KeyboardInterrupt:
             raise
@@ -62,6 +69,8 @@ if __name__ == "__main__":
     
     if args.model == 'vgg16':
         worker = VGG16Worker(args.crow)
+    elif args.model == 'dlib_face':
+        worker = DlibFaceWorker(args.shapepath, args.facepath)
     else:
         raise Exception()
     
@@ -82,8 +91,8 @@ if __name__ == "__main__":
     while True:
         
         try:
-            path, img = processed_images.get(timeout=args.timeout)
-            worker.featurize(path, img)
+            path, obj = processed_images.get(timeout=args.timeout)
+            worker.featurize(path, obj)
             
             i += 1
             if not i % 100:
