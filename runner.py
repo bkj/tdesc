@@ -30,7 +30,7 @@ def parse_args():
     # VGG16 options
     parser.add_argument('--crow', action="store_true")
     # DlibFace options
-    parser.add_argument('--facepath', type=str, default='./db.h5')
+    parser.add_argument('--outpath', type=str, default='./db.h5')
     parser.add_argument('--shapepath', type=str, default='./models/shape_predictor_68_face_landmarks.dat')
     parser.add_argument('--facepath', type=str, default='./models/dlib_face_recognition_resnet_model_v1.dat')
     
@@ -43,13 +43,13 @@ def prep_images(in_, out_, imread, timeout):
     while True:
         try:
             path = in_.get(timeout=timeout)
-            try:
-                img = imread(path)
-                out_.put((path, img))
-            except KeyboardInterrupt:
-                raise
-            except:
-                print >> sys.stderr, "prep_images: Error at %s" % path
+            # try:
+            img = imread(path)
+            out_.put((path, img))
+            # except KeyboardInterrupt:
+            #     raise
+            # except:
+            #     print >> sys.stderr, "prep_images: Error at %s" % path
         
         except KeyboardInterrupt:
             raise
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     if args.model == 'vgg16':
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
-        worker = DlibFaceWorker(args.shapepath, args.facepath)
+        worker = DlibFaceWorker(args.outpath, args.shapepath, args.facepath)
     else:
         raise Exception()
     
@@ -103,7 +103,8 @@ if __name__ == "__main__":
         except Empty:
             worker.close()
             os._exit(0)
-        except:
-            pass
+        except Exception as e:
+            raise e
+            os._exit(0)
     
     print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)

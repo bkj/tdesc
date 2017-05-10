@@ -11,14 +11,15 @@ import urllib
 import cStringIO
 import numpy as np
 
-# VGG16 featurization
-from keras.applications import VGG16
-from keras.models import Model
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input
+# # VGG16 featurization
+# from keras.applications import VGG16
+# from keras.models import Model
+# from keras.preprocessing import image
+# from keras.applications.vgg16 import preprocess_input
 
 # Face featurization
 import dlib
+import h5py
 from skimage import io
 
 class VGG16Worker(object):
@@ -64,24 +65,24 @@ class VGG16Worker(object):
 
 class DlibFaceWorker(object):
     
-    def __init__(self, shape_path, face_path, out_path):
+    def __init__(self, outpath, shapepath, facepath):
         self.detector = dlib.get_frontal_face_detector()
-        self.sp = dlib.shape_predictor(shape_path)
-        self.facerec = dlib.face_recognition_model_v1(face_path)
-        self.db = h5py.File(out_path)
+        self.sp = dlib.shape_predictor(shapepath)
+        self.facerec = dlib.face_recognition_model_v1(facepath)
+        self.db = h5py.File(outpath)
     
     def imread(self, path):
         img = io.imread(path)
-        dets = detector(img, 1)
+        dets = self.detector(img, 1)
         return img, dets
     
     def featurize(self, path, obj):
         img, dets = obj
         for k,d in enumerate(dets):
-            shape = sp(img, d)
-            face_descriptor = facerec.compute_face_descriptor(img, shape, 10)
-            self.db['%s/%d/feat' % (os.path.basename(line), k)] = np.array(face_descriptor)
-            self.db['%s/%d/img' % (os.path.basename(line), k)] = img[d.top():d.bottom(),d.left():d.right()]
+            shape = self.sp(img, d)
+            face_descriptor = self.facerec.compute_face_descriptor(img, shape, 10)
+            self.db['%s/%d/feat' % (os.path.basename(path), k)] = np.array(face_descriptor)
+            self.db['%s/%d/img' % (os.path.basename(path), k)] = img[d.top():d.bottom(),d.left():d.right()]
     
     def close(self):
         self.db.close()
