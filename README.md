@@ -36,7 +36,7 @@ These are benchmarks on my system, reading images over the network.  The boost y
 ```
 
     # Naive IO
-    cat urls | ./runner --crow > /dev/null
+    cat urls | ./naive-runner.py --crow > /dev/null
 
         Using Theano backend.
         Using cuDNN version 5110 on context None
