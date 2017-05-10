@@ -30,7 +30,7 @@ def parse_args():
     # VGG16 options
     parser.add_argument('--crow', action="store_true")
     # DlibFace options
-    parser.add_argument('--outpath', type=str, default='./db.h5')    
+    parser.add_argument('--outpath', type=str, default='./db.h5')
     return parser.parse_args()
 
 # --
@@ -40,17 +40,17 @@ def prep_images(in_, out_, imread, timeout):
     while True:
         try:
             path = in_.get(timeout=timeout)
-            try:
-                img = imread(path)
-                out_.put((path, img))
-            except KeyboardInterrupt:
-                raise
-            except:
-                print >> sys.stderr, "prep_images: Error at %s" % path
+            # try:
+            img = imread(path)
+            out_.put((path, img))
+            # except KeyboardInterrupt:
+            #     raise
+            # except:
+            #     print >> sys.stderr, "prep_images: Error at %s" % path
         
         except KeyboardInterrupt:
             raise
-        
+            os._exit(0)
         except Empty:
             return
 
@@ -70,6 +70,8 @@ if __name__ == "__main__":
         worker = DlibFaceWorker(args.outpath)
     else:
         raise Exception()
+    
+    # imread = worker.get_imread()
     
     # Thread to read filenames from stdin
     filenames = Queue()
@@ -97,6 +99,7 @@ if __name__ == "__main__":
             
         except KeyboardInterrupt:
             raise
+            os._exit(0)
         except Empty:
             worker.close()
             os._exit(0)

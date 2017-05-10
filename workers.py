@@ -10,16 +10,16 @@ import urllib
 import cStringIO
 import numpy as np
 
-def import_VGG16Worker():
-    from keras.applications import VGG16
-    from keras.models import Model
-    from keras.preprocessing import image
-    from keras.applications.vgg16 import preprocess_input
+# vgg16
+from keras.applications import VGG16
+from keras.models import Model
+from keras.preprocessing import image
+from keras.applications.vgg16 import preprocess_input
 
-def import_DlibFaceWorker():
-    import dlib
-    import h5py
-    from skimage import io
+# dlib
+import dlib
+import h5py
+from skimage import io
 
 # --
 
@@ -31,7 +31,6 @@ class VGG16Worker(object):
     """
     
     def __init__(self, crow, target_dim=224):
-        import_VGG16Worker()
         if crow:
             self.model = VGG16(weights='imagenet', include_top=False)
         else:
@@ -42,9 +41,7 @@ class VGG16Worker(object):
         self.crow = crow
         
         self._warmup()
-    
-    def _warmup(self):
-        _ = self.model.predict(np.zeros((1, self.target_dim, self.target_dim, 3)))
+        print >> sys.stderr, 'VGG16Worker: ready'
     
     def imread(self, path):
         if 'http' == path[:4]:
@@ -58,12 +55,13 @@ class VGG16Worker(object):
         img = preprocess_input(img)
         return img
     
+    def _warmup(self):
+        _ = self.model.predict(np.zeros((1, self.target_dim, self.target_dim, 3)))
+    
     def featurize(self, path, img):
-        feat = self.model.predict(img)
+        feat = self.model.predict(img).squeeze()
         if self.crow:
             feat = feat.sum(axis=(0, 1))
-        else:
-            feat = feat.squeeze()
         
         print '\t'.join((path, '\t'.join(map(str, feat))))
     
@@ -89,6 +87,7 @@ class DlibFaceWorker(object):
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
         self.db = h5py.File(outpath)
+        print >> sys.stderr, 'DlibFaceWorker: ready'
     
     def imread(self, path):
         img = io.imread(path)
