@@ -106,4 +106,5 @@ if __name__ == "__main__":
     for image_processor in image_processors:
         image_processor.start()
     
+    # "Thread" to do work
     do_work(worker, processed_images)
