@@ -17,9 +17,16 @@ from multiprocessing import Process, Queue
 from Queue import Empty
 
 from workers import VGG16Worker, DlibFaceWorker
+from yolo_worker import YoloWorker
 
 # --
 # Init
+
+defaults = {
+    "name_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/custom.names',
+    "cfg_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/yolo-custom.cfg',
+    "weight_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/backup/yolo-custom_10000.weights',
+}
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -29,8 +36,17 @@ def parse_args():
     
     # VGG16 options
     parser.add_argument('--crow', action="store_true")
+    
     # DlibFace options
     parser.add_argument('--outpath', type=str, default='./db.h5')
+    
+    # Yolo options
+    parser.add_argument('--yolo-cfg-path', type='str', required=True)
+    parser.add_argument('--yolo-weight-path', type='str', required=True)
+    parser.add_argument('--yolo-name-path', type='str', required=True)
+    parser.add_argument('--yolo-thresh', type=float, default=0.1)
+    parser.add_argument('--yolo-nms', type=float, default=0.3)
+    
     return parser.parse_args()
 
 # --
@@ -91,6 +107,14 @@ if __name__ == "__main__":
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
         worker = DlibFaceWorker(args.outpath)
+    elif args.model == 'yolo':
+        worker = YoloWorker(**{
+            "cfg_path" : args.yolo_cfg_path,
+            "weight_path" : args.yolo_weight_path,
+            "name_path" : args.yolo_name_path,
+            "thresh" : args.yolo_thresh,
+            "nms" : args.yolo_nms,
+        })
     else:
         raise Exception()
     
