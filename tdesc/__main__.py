@@ -32,13 +32,20 @@ def parse_args():
     parser.add_argument('--outpath', type=str, default='./db.h5')
     
     # Yolo options
-    parser.add_argument('--yolo-cfg-path', type='str', required=True)
-    parser.add_argument('--yolo-weight-path', type='str', required=True)
-    parser.add_argument('--yolo-name-path', type='str', required=True)
+    parser.add_argument('--yolo-cfg-path', type=str, required=False)
+    parser.add_argument('--yolo-weight-path', type=str, required=False)
+    parser.add_argument('--yolo-name-path', type=str, required=False)
     parser.add_argument('--yolo-thresh', type=float, default=0.1)
     parser.add_argument('--yolo-nms', type=float, default=0.3)
     
-    return parser.parse_args()
+    args = parser.parse_args()
+    
+    if args.model == 'yolo':
+        assert args.yolo_cfg_path is not None
+        assert args.yolo_weight_path is not None
+        assert args.yolo_nms is not None
+    
+    return args
 
 # --
 # Threaded IO
