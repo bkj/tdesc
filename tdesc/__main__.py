@@ -16,9 +16,6 @@ from time import time
 from multiprocessing import Process, Queue
 from Queue import Empty
 
-from workers import VGG16Worker, DlibFaceWorker
-from yolo_worker import YoloWorker
-
 # --
 # Init
 
@@ -98,10 +95,13 @@ if __name__ == "__main__":
     args = parse_args()
     
     if args.model == 'vgg16':
+        from tdesc.workers import VGG16Worker
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
+        from tdesc.workers import DlibFaceWorker
         worker = DlibFaceWorker(args.outpath)
     elif args.model == 'yolo':
+        from tdesc.workers import YoloWorker
         worker = YoloWorker(**{
             "cfg_path" : args.yolo_cfg_path,
             "weight_path" : args.yolo_weight_path,
