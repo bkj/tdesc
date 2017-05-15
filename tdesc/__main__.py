@@ -16,8 +16,6 @@ from time import time
 from multiprocessing import Process, Queue
 from Queue import Empty
 
-from workers import VGG16Worker, DlibFaceWorker
-
 # --
 # Init
 
