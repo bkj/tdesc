@@ -10,9 +10,13 @@ import urllib
 import cStringIO
 import numpy as np
 
-import dlib
-import h5py
-from skimage import io
+def import_dlib():
+    global dlib
+    global h5py
+    global io
+    import dlib
+    import h5py
+    from skimage import io
 
 class DlibFaceWorker(object):
     """ 
@@ -20,9 +24,10 @@ class DlibFaceWorker(object):
     """
     
     def __init__(self, outpath, use_h5py=False):
+        import_dlib()
         self.detector = dlib.get_frontal_face_detector()
         
-        ppath = os.path.dirname(os.path.realpath(__file__))
+        ppath = os.path.join(os.environ['HOME'], '.tdesc')
         
         shapepath = os.path.join(ppath, 'models/dlib/shape_predictor_68_face_landmarks.dat')
         self.sp = dlib.shape_predictor(shapepath)

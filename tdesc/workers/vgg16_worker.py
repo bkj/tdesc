@@ -10,10 +10,15 @@ import urllib
 import cStringIO
 import numpy as np
 
-from keras.applications import VGG16
-from keras.models import Model
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input
+def import_vgg16():
+    global VGG16
+    global Model
+    global image
+    global preprocess_input
+    from keras.applications import VGG16
+    from keras.models import Model
+    from keras.preprocessing import image
+    from keras.applications.vgg16 import preprocess_input
 
 class VGG16Worker(object):
     """ 
@@ -23,6 +28,7 @@ class VGG16Worker(object):
     """
     
     def __init__(self, crow, target_dim=224):
+        import_vgg16()
         if crow:
             self.model = VGG16(weights='imagenet', include_top=False)
         else:

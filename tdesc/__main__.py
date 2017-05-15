@@ -86,8 +86,10 @@ if __name__ == "__main__":
     args = parse_args()
     
     if args.model == 'vgg16':
+        from tdesc.workers import VGG16Worker
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
+        from tdesc.workers import DlibFaceWorker
         worker = DlibFaceWorker(args.outpath)
     else:
         raise Exception()
