@@ -22,12 +22,6 @@ from yolo_worker import YoloWorker
 # --
 # Init
 
-defaults = {
-    "name_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/custom.names',
-    "cfg_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/yolo-custom.cfg',
-    "weight_path" : '/home/bjohnson/projects/darknet-bkj/custom-tools/pfr-data.bak/backup/yolo-custom_10000.weights',
-}
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='vgg16')
