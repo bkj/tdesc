@@ -2,6 +2,12 @@
 
 Image processing tools
 
+### Setup
+
+```
+python setup.py install
+```
+
 ### Models
 
 #### VGG16
@@ -11,10 +17,10 @@ Takes list of filenames, writes filename + descriptor to TSV.
 ```
 
     # FC2 features
-    cat filenames | ./runner.py --model vgg16 > vgg16-fc2.descriptors
+    cat filenames | python -m tdesc --model vgg16 > vgg16-fc2.descriptors
     
     # CROW features (sum pooled conv5 features)
-    cat filenames | ./runner.py --model vgg16 --crow > vgg16-crow.descriptors
+    cat filenames | python -m tdesc --model vgg16 --crow > vgg16-crow.descriptors
 ```
 
 #### `dlib` face descriptors
@@ -23,7 +29,7 @@ Takes list of filenames, writes filename + descriptor to TSV.
 
 ```
 
-    cat filenames | ./runner.py --model dlib_face --outpath faces.h5
+    cat filenames | python -m tdesc --model dlib_face --outpath faces.h5
 ```
 
 ### Details
@@ -57,7 +63,7 @@ These are benchmarks on my system, reading images over the network.  The boost y
 
     
     # One thread
-    cat urls | ./runner.py --crow --io-threads 1 > /dev/null
+    cat urls | python -m tdesc --crow --io-threads 1 > /dev/null
     
         Using Theano backend.
         Using cuDNN version 5110 on context None
@@ -76,14 +82,14 @@ These are benchmarks on my system, reading images over the network.  The boost y
     
     
     # Two threads
-    cat urls | ./runner.py --crow --io-threads 2 > /dev/null
+    cat urls | python -m tdesc --crow --io-threads 2 > /dev/null
     
         ...
         900 images | 15.679864 seconds
         1000 images | 17.494891 seconds
     
     # Four threads
-    cat urls | ./runner.py --crow --io-threads 4 > /dev/null
+    cat urls | python -m tdesc --crow --io-threads 4 > /dev/null
         
         ...    
         900 images | 7.591560 seconds
