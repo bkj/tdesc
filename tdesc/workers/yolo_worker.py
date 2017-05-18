@@ -29,10 +29,11 @@ class DetBBox(object):
 
 
 class YoloWorker(object):
-    def __init__(self, cfg_path, weight_path, name_path, thresh, nms, target_dim=224):
+    def __init__(self, cfg_path, weight_path, name_path, thresh, nms, target_dim=416):
         import_yolo()
         
-        DarknetObjectDetector.set_device(gpu_id)
+        DarknetObjectDetector.set_device(0)
+        self.target_dim = target_dim
         self.class_names = open(name_path).read().splitlines()
         self.det = DarknetObjectDetector(cfg_path, weight_path, thresh, nms, 0)
     
@@ -41,7 +42,7 @@ class YoloWorker(object):
             path = cStringIO.StringIO(urllib.urlopen(path).read())
         
         img = Image.open(path).convert('RGB')
-        img = img.resize((net_size, net_size), Image.BILINEAR)
+        img = img.resize((self.target_dim, self.target_dim), Image.BILINEAR)
         
         data = np.array(img).transpose([2,0,1]).astype(np.uint8).tostring()
         return data, (img.size[0], img.size[1])
@@ -52,7 +53,7 @@ class YoloWorker(object):
         for bbox in bboxes:
             class_name = self.class_names[bbox.cls]
             print '\t'.join(map(str, [
-                im_name, 
+                path, 
                 class_name, 
                 bbox.confidence, 
                 bbox.top,
