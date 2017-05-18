@@ -56,13 +56,16 @@ class VGG16Worker(object):
     def _warmup(self):
         _ = self.model.predict(np.zeros((1, self.target_dim, self.target_dim, 3)))
     
-    def featurize(self, path, img):
+    def featurize(self, path, img, return_feat=False):
         feat = self.model.predict(img).squeeze()
         if self.crow:
             feat = feat.sum(axis=(0, 1))
         
-        print '\t'.join((path, '\t'.join(map(str, feat))))
-        sys.stdout.flush()
+        if not return_feat:
+            print '\t'.join((path, '\t'.join(map(str, feat))))
+            sys.stdout.flush()
+        else:
+            return path, feat
     
     def close(self):
         pass
