@@ -1,23 +1,10 @@
 #!/usr/bin/env python
 
 """
-    runner.py
+    tdesc
 """
 
-import os
-import sys
 import argparse
-import numpy as np
-
-import urllib
-import cStringIO
-from time import time
-
-from multiprocessing import Process, Queue
-from Queue import Empty
-
-# --
-# Init
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -47,56 +34,6 @@ def parse_args():
     
     return args
 
-# --
-# Threaded IO
-
-def read_stdin(gen, out_):
-    for line in gen:
-        out_.put(line.strip())
-
-def do_io(in_, out_, imread, timeout):
-    while True:
-        try:
-            path = in_.get(timeout=timeout)
-            try:
-                img = imread(path)
-                out_.put((path, img))
-            except KeyboardInterrupt:
-                raise
-            except:
-                print >> sys.stderr, "do_io: Error at %s" % path
-        
-        except KeyboardInterrupt:
-            raise
-            os._exit(0)
-        except Empty:
-            return
-
-def do_work(worker, io_queue, print_interval=25):
-    i = 0
-    start_time = time()
-    while True:
-        
-        try:
-            path, obj = processed_images.get(timeout=args.timeout)
-            worker.featurize(path, obj)
-            
-            i += 1
-            if not i % print_interval:
-                print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
-            
-        except KeyboardInterrupt:
-            raise
-            os._exit(0)
-        except Empty:
-            worker.close()
-            os._exit(0)
-        except Exception as e:
-            raise e
-            os._exit(0)
-
-# --
-# Run
 
 if __name__ == "__main__":
     args = parse_args()
@@ -119,17 +56,5 @@ if __name__ == "__main__":
     else:
         raise Exception()
     
-    # Thread to read filenames from stdin
-    filenames = Queue()
-    newstdin = os.fdopen(os.dup(sys.stdin.fileno()))
-    stdin_reader = Process(target=read_stdin, args=(newstdin, filenames))
-    stdin_reader.start()
-    
-    # Thread to load images    
-    processed_images = Queue()
-    image_processors = [Process(target=do_io, args=(filenames, processed_images, worker.imread, args.timeout)) for _ in range(args.io_threads)]
-    for image_processor in image_processors:
-        image_processor.start()
-    
-    # "Thread" to do work
-    do_work(worker, processed_images)
+    worker.run(args.io_threads)
+

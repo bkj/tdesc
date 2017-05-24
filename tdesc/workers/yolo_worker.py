@@ -11,6 +11,7 @@ import cStringIO
 import numpy as np
 from PIL import Image
 
+from base import BaseWorker
 
 def import_yolo():
     global DarknetObjectDetector
@@ -28,7 +29,7 @@ class DetBBox(object):
         self.cls = bbox.cls
 
 
-class YoloWorker(object):
+class YoloWorker(BaseWorker):
     def __init__(self, cfg_path, weight_path, name_path, thresh, nms, target_dim=416):
         import_yolo()
         

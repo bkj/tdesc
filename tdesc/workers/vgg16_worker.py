@@ -10,6 +10,8 @@ import urllib
 import cStringIO
 import numpy as np
 
+from base import BaseWorker
+
 def import_vgg16():
     global VGG16
     global Model
@@ -20,7 +22,7 @@ def import_vgg16():
     from keras.preprocessing import image
     from keras.applications.vgg16 import preprocess_input
 
-class VGG16Worker(object):
+class VGG16Worker(BaseWorker):
     """ 
         compute late VGG16 features
         

@@ -10,6 +10,8 @@ import urllib
 import cStringIO
 import numpy as np
 
+from base import BaseWorker
+
 def import_dlib():
     global dlib
     global h5py
@@ -18,7 +20,7 @@ def import_dlib():
     import h5py
     from skimage import io
 
-class DlibFaceWorker(object):
+class DlibFaceWorker(BaseWorker):
     """ 
         compute dlib face descriptors 
     """
