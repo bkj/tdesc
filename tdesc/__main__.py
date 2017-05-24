@@ -2,6 +2,8 @@
 
 """
     tdesc
+    
+    cat filenames | python -m tdesc --model vgg16 --crow > feats
 """
 
 import argparse
@@ -56,5 +58,5 @@ if __name__ == "__main__":
     else:
         raise Exception()
     
-    worker.run(args.io_threads)
+    worker.run(io_threads=args.io_threads, timeout=args.timeout)
 
