@@ -25,7 +25,7 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self, outpath, use_h5py=False):
+    def __init__(self):
         import_dlib()
         self.detector = dlib.get_frontal_face_detector()
         
@@ -37,11 +37,6 @@ class DlibFaceWorker(BaseWorker):
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
-        if use_h5py:
-            self.db = h5py.File(outpath)
-        
-        self.use_h5py = use_h5py
-        
         print >> sys.stderr, 'DlibFaceWorker: ready'
     
     def imread(self, path):
@@ -49,16 +44,14 @@ class DlibFaceWorker(BaseWorker):
         dets = self.detector(img, 1)
         return img, dets
     
-    def featurize(self, path, obj):
+    def featurize(self, path, obj, return_feat=False):
         img, dets = obj
+        feats = []
         for k,d in enumerate(dets):
             shape = self.sp(img, d)
             face_descriptor = self.facerec.compute_face_descriptor(img, shape, 10)
             
-            if self.use_h5py:
-                self.db['%s/%d/feat' % (os.path.basename(path), k)] = np.array(face_descriptor)
-                self.db['%s/%d/img' % (os.path.basename(path), k)] = img[d.top():d.bottom(),d.left():d.right()]
-            else:
+            if not return_feat:
                 print '\t'.join((
                     path, 
                     str(k),
@@ -66,6 +59,15 @@ class DlibFaceWorker(BaseWorker):
                     '\t'.join(map(str, face_descriptor))
                 ))
                 sys.stdout.flush()
+            else:
+                feats.append({
+                    "k" : k,
+                    "bbox" : [d.top(),d.bottom(),d.left(),d.right()],
+                    "desc" : face_descriptor
+                })
+        
+        if return_feat:
+            return path, feats
     
     def close(self):
         if self.use_h5py:
