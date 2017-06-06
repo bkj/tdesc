@@ -36,7 +36,8 @@ class BaseWorker(object):
             image_processor.start()
         
         # "Thread" to do work
-        self.do_work()
+        for w in self.do_work():
+            yield w
     
     def do_io(self):
         while True:
@@ -62,7 +63,7 @@ class BaseWorker(object):
         while True:
             try:
                 req, obj = self.io_queue.get(timeout=self.timeout)
-                self.featurize(req, obj)
+                yield self.featurize(req, obj)
                 
                 i += 1
                 if not i % self.print_interval:

@@ -58,5 +58,6 @@ if __name__ == "__main__":
     else:
         raise Exception()
     
-    worker.run(io_threads=args.io_threads, timeout=args.timeout)
+    for w in worker.run(io_threads=args.io_threads, timeout=args.timeout):
+        pass
 
