@@ -41,6 +41,9 @@ class VGG16Worker(object):
         self._warmup()
         print >> sys.stderr, 'VGG16Worker: ready'
     
+    def _warmup(self):
+        _ = self.model.predict(np.zeros((1, self.target_dim, self.target_dim, 3)))
+    
     def imread(self, path):
         if 'http' == path[:4]:
             img = cStringIO.StringIO(urllib.urlopen(path).read())
@@ -52,9 +55,6 @@ class VGG16Worker(object):
         img = np.expand_dims(img, axis=0)
         img = preprocess_input(img)
         return img
-    
-    def _warmup(self):
-        _ = self.model.predict(np.zeros((1, self.target_dim, self.target_dim, 3)))
     
     def featurize(self, path, img, return_feat=False):
         feat = self.model.predict(img).squeeze()
