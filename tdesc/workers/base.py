@@ -44,7 +44,8 @@ class BaseWorker(object):
                 req = self.filename_queue.get(timeout=self.timeout)
                 try:
                     img = self.imread(req)
-                    self.io_queue.put((req, img))
+                    if np.any(img):
+                        self.io_queue.put((req, img))
                 except KeyboardInterrupt:
                     raise
                 except:
