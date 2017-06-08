@@ -19,6 +19,7 @@ def import_dlib():
     import dlib
     import h5py
     from skimage import io
+    from skimage import color
 
 class DlibFaceWorker(BaseWorker):
     """ 
@@ -41,6 +42,8 @@ class DlibFaceWorker(BaseWorker):
     
     def imread(self, path):
         img = io.imread(path)
+        if img.shape[-1] == 4:
+            img = color.rgba2rgb(img)
         dets = self.detector(img, 1)
         return img, dets
     
