@@ -81,6 +81,8 @@ class BaseWorker(object):
                 os._exit(0)
             except Exception as e:
                 print >> sys.stderr, 'do_work: terminating | Exception'
+                print >> sys.stderr, req
+                print >> sys.stderr, obj
                 raise e
                 os._exit(0)
     
