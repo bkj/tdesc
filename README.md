@@ -32,6 +32,8 @@ Takes list of filenames, writes filename + descriptor to TSV.
     cat filenames | python -m tdesc --model dlib_face --outpath faces.h5
 ```
 
+It seems like the `AVX_INSTRUCTIONS` option in `dlib` makes a big difference (8x?).
+
 ### Details
 
 #### Threaded IO
