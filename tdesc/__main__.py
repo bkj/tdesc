@@ -18,7 +18,8 @@ def parse_args():
     parser.add_argument('--crow', action="store_true")
     
     # DlibFace options
-    parser.add_argument('--outpath', type=str, default='./db.h5')
+    parser.add_argument('--no-detect', action='store_true')
+    parser.add_argument('--num-jitters', type=int, default=10)
     
     # Yolo options
     parser.add_argument('--yolo-cfg-path', type=str, required=False)
@@ -45,7 +46,7 @@ if __name__ == "__main__":
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
         from tdesc.workers import DlibFaceWorker
-        worker = DlibFaceWorker()
+        worker = DlibFaceWorker(detect=not args.no_detect, num_jitters=args.num_jitters)
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker
         worker = YoloWorker(**{
@@ -60,5 +61,5 @@ if __name__ == "__main__":
         raise Exception()
     
     for w in worker.run(io_threads=args.io_threads, timeout=args.timeout):
-        pass
+        print w
 

@@ -27,7 +27,7 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self, num_jitters=10):
+    def __init__(self, detect=True, num_jitters=10):
         import_dlib()
         self.detector = dlib.get_frontal_face_detector()
         
@@ -39,15 +39,20 @@ class DlibFaceWorker(BaseWorker):
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
+        self.detect = detect
         self.num_jitters = num_jitters
         
-        print >> sys.stderr, 'DlibFaceWorker: ready'
+        print >> sys.stderr, 'DlibFaceWorker: ready (detect=%d | num_jitters=%d)' % (int(detect), int(num_jitters))
     
     def imread(self, path):
         img = io.imread(path)
         if img.shape[-1] == 4:
             img = color.rgba2rgb(img)
-        dets = self.detector(img, 1)
+        
+        if self.detect:
+            dets = self.detector(img, 1)
+        else:
+            dets = [dlib.rectangle(0, img.shape[0], 0, img.shape[1])]
         return img, dets
     
     def featurize(self, path, obj, return_feat=False):
