@@ -45,7 +45,7 @@ if __name__ == "__main__":
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
         from tdesc.workers import DlibFaceWorker
-        worker = DlibFaceWorker(args.outpath)
+        worker = DlibFaceWorker()
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker
         worker = YoloWorker(**{
@@ -56,6 +56,7 @@ if __name__ == "__main__":
             "nms" : args.yolo_nms,
         })
     else:
+        print >> sys.stderr, "tdesc: Unknown model=%s" % args.model
         raise Exception()
     
     for w in worker.run(io_threads=args.io_threads, timeout=args.timeout):
