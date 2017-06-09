@@ -82,5 +82,3 @@ class DlibFaceWorker(BaseWorker):
     
     def close(self):
         print >> sys.stderr, 'DlibFaceWorker: terminating'
-        if self.use_h5py:
-            self.db.close()
