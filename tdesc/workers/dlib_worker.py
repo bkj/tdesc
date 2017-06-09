@@ -16,6 +16,7 @@ def import_dlib():
     global dlib
     global h5py
     global io
+    global color
     import dlib
     import h5py
     from skimage import io
@@ -26,7 +27,7 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self):
+    def __init__(self, num_jitters=10):
         import_dlib()
         self.detector = dlib.get_frontal_face_detector()
         
@@ -37,6 +38,8 @@ class DlibFaceWorker(BaseWorker):
         
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
+        
+        self.num_jitters = num_jitters
         
         print >> sys.stderr, 'DlibFaceWorker: ready'
     
@@ -52,7 +55,7 @@ class DlibFaceWorker(BaseWorker):
         feats = []
         for k,d in enumerate(dets):
             shape = self.sp(img, d)
-            face_descriptor = self.facerec.compute_face_descriptor(img, shape, 10)
+            face_descriptor = self.facerec.compute_face_descriptor(img, shape, self.num_jitters)
             
             if not return_feat:
                 print '\t'.join((
@@ -73,5 +76,6 @@ class DlibFaceWorker(BaseWorker):
             return path, feats
     
     def close(self):
+        print >> sys.stderr, 'DlibFaceWorker: terminating'
         if self.use_h5py:
             self.db.close()

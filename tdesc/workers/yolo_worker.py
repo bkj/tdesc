@@ -37,7 +37,8 @@ class YoloWorker(BaseWorker):
         self.target_dim = target_dim
         self.class_names = open(name_path).read().splitlines()
         self.det = DarknetObjectDetector(cfg_path, weight_path, thresh, nms, 0)
-    
+        print >> sys.stderr, 'YoloWorker: ready'
+        
     def imread(self, path):
         if path[:4] == 'http':
             path = cStringIO.StringIO(urllib.urlopen(path).read())
@@ -76,4 +77,5 @@ class YoloWorker(BaseWorker):
             return meta, feats
     
     def close(self):
+        print >> sys.stderr, 'YoloWorker: terminating'
         pass

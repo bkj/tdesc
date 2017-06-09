@@ -48,13 +48,16 @@ class BaseWorker(object):
                     if img is not None:
                         self.io_queue.put((req, img))
                 except KeyboardInterrupt:
+                    print >> sys.stderr, 'do_io: terminating | KeyboardInterrupt'
                     raise
                 except:
                     print >> sys.stderr, "do_io: Error at %s" % req
             except KeyboardInterrupt:
+                print >> sys.stderr, 'do_io: terminating | KeyboardInterrupt'
                 raise
                 os._exit(0)
             except Empty:
+                print >> sys.stderr, 'do_io: terminating | empty'
                 return
     
     def do_work(self):
@@ -69,12 +72,15 @@ class BaseWorker(object):
                 if not i % self.print_interval:
                     print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
             except KeyboardInterrupt:
+                print >> sys.stderr, 'do_work: terminating | KeyboardInterrupt'
                 raise
                 os._exit(0)
             except Empty:
+                print >> sys.stderr, 'do_work: terminating | Empty'
                 self.close()
                 os._exit(0)
             except Exception as e:
+                print >> sys.stderr, 'do_work: terminating | Exception'
                 raise e
                 os._exit(0)
     

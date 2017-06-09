@@ -70,4 +70,5 @@ class VGG16Worker(BaseWorker):
             return path, feat
     
     def close(self):
+        print >> sys.stderr, 'VGG16Worker: terminating'
         pass
