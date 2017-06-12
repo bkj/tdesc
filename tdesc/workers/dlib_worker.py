@@ -26,7 +26,7 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self, detect=True, num_jitters=10, dnn=False):
+    def __init__(self, num_jitters=10, dnn=False):
         import_dlib()
         
         ppath = os.path.join(os.environ['HOME'], '.tdesc')
@@ -43,10 +43,10 @@ class DlibFaceWorker(BaseWorker):
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
-        self.detect = detect
         self.num_jitters = num_jitters
+        self.dnn = dnn
         
-        print >> sys.stderr, 'DlibFaceWorker: ready (detect=%d | num_jitters=%d)' % (int(detect), int(num_jitters))
+        print >> sys.stderr, 'DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters))
     
     def imread(self, path):
         img = io.imread(path)
@@ -55,18 +55,15 @@ class DlibFaceWorker(BaseWorker):
         elif len(img.shape) == 2:
             img = color.grey2rgb(img)
         
-        if self.detect:
-            if not self.dnn:
-                dets = self.detector(img, 1)
-            else:
-                dets = self.detector.detect(img)
-        else:
-            dets = [dlib.rectangle(top=0, bottom=img.shape[0], left=0, right=img.shape[1])]
+        dets = self.detector(img, 1) if not self.dnn else []
         
         return img, dets
     
     def featurize(self, path, obj, return_feat=False):
         img, dets = obj
+        if self.dnn:
+            dets, _ = self.detector(img)
+        
         feats = []
         for k,d in enumerate(dets):
             shape = self.sp(img, d)

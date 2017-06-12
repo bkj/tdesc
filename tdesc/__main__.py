@@ -19,7 +19,6 @@ def parse_args():
     
     # DlibFace options
     parser.add_argument('--dnn', action='store_true')
-    parser.add_argument('--no-detect', action='store_true')
     parser.add_argument('--num-jitters', type=int, default=10)
     
     # Yolo options
@@ -49,7 +48,6 @@ if __name__ == "__main__":
         from tdesc.workers import DlibFaceWorker
         worker = DlibFaceWorker(**{
             "dnn" : args.dnn,
-            "detect" : not args.no_detect, 
             "num_jitters" : args.num_jitters,
         })
     elif args.model == 'yolo':
