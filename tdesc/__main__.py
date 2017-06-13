@@ -19,6 +19,7 @@ def parse_args():
     
     # DlibFace options
     parser.add_argument('--dnn', action='store_true')
+    parser.add_argument('--batch', action='store_true')
     parser.add_argument('--num-jitters', type=int, default=10)
     
     # Yolo options
@@ -45,11 +46,17 @@ if __name__ == "__main__":
         from tdesc.workers import VGG16Worker
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
-        from tdesc.workers import DlibFaceWorker
-        worker = DlibFaceWorker(**{
-            "dnn" : args.dnn,
-            "num_jitters" : args.num_jitters,
-        })
+        if not args.batch:
+            from tdesc.workers import DlibFaceWorker
+            worker = DlibFaceWorker(**{
+                "dnn" : args.dnn,
+                "num_jitters" : args.num_jitters,
+            })
+        else:
+            from tdesc.workers import DlibFaceBatchWorker
+            worker = DlibFaceBatchWorker(**{
+                "num_jitters" : args.num_jitters,
+            })
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker
         worker = YoloWorker(**{
