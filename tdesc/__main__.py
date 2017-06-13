@@ -19,8 +19,10 @@ def parse_args():
     
     # DlibFace options
     parser.add_argument('--dnn', action='store_true')
-    parser.add_argument('--batch', action='store_true')
+    parser.add_argument('--upsample', type=int, default=0)
+    parser.add_argument('--batch-size', type=int, default=0)
     parser.add_argument('--num-jitters', type=int, default=10)
+    parser.add_argument('--det-threshold', type=float, default=0.0)
     
     # Yolo options
     parser.add_argument('--yolo-cfg-path', type=str, required=False)
@@ -46,16 +48,19 @@ if __name__ == "__main__":
         from tdesc.workers import VGG16Worker
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
-        if not args.batch:
+        if not args.batch_size:
             from tdesc.workers import DlibFaceWorker
             worker = DlibFaceWorker(**{
                 "dnn" : args.dnn,
                 "num_jitters" : args.num_jitters,
+                "det_threshold" : args.det_threshold,
+                "upsample" : args.upsample,
             })
         else:
             from tdesc.workers import DlibFaceBatchWorker
             worker = DlibFaceBatchWorker(**{
-                "num_jitters" : args.num_jitters,
+                "batch_size" : args.batch_size,
+                "num_jitters" : args.num_jitters
             })
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker

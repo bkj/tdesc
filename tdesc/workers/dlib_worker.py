@@ -26,7 +26,7 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self, num_jitters=10, dnn=False):
+    def __init__(self, num_jitters=10, dnn=False, det_threshold=0.0, upsample=0):
         import_dlib()
         
         ppath = os.path.join(os.environ['HOME'], '.tdesc')
@@ -45,6 +45,8 @@ class DlibFaceWorker(BaseWorker):
         
         self.num_jitters = num_jitters
         self.dnn = dnn
+        self.det_threshold = det_threshold
+        self.upsample = upsample
         
         print >> sys.stderr, 'DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters))
     
@@ -55,7 +57,10 @@ class DlibFaceWorker(BaseWorker):
         elif len(img.shape) == 2:
             img = color.grey2rgb(img)
         
-        dets = self.detector(img, 1) if not self.dnn else []
+        if not self.dnn:
+            dets, _, _ = self.detector.run(img, self.upsample, self.det_threshold)
+        else:
+            dets = []
         
         return img, dets
     
