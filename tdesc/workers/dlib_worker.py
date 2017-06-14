@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 """
-    workers.py
+    dlib_worker.py
+    
+    Run `dlib` face featurization
+    
+    !! Could do a better job w/ batching
 """
 
 import os
