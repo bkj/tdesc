@@ -6,7 +6,7 @@
 
 import sys
 import numpy as np
-
+import dlib
 from dlib_worker import DlibFaceWorker
 
 class DlibFaceBatchWorker(DlibFaceWorker):

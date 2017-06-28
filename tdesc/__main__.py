@@ -13,6 +13,7 @@ def parse_args():
     parser.add_argument('--model', type=str, default='vgg16')
     parser.add_argument('--io-threads', type=int, default=3)
     parser.add_argument('--timeout', type=int, default=10)
+    parser.add_argument('--target-dim', type=int, default=224)
     
     # VGG16 options
     parser.add_argument('--crow', action="store_true")
@@ -46,7 +47,10 @@ if __name__ == "__main__":
     
     if args.model == 'vgg16':
         from tdesc.workers import VGG16Worker
-        worker = VGG16Worker(args.crow)
+        worker = VGG16Worker(**{
+            "crow" : args.crow,
+            "target_dim" : args.target_dim,
+        })
     elif args.model == 'dlib_face':
         if not args.batch_size:
             from tdesc.workers import DlibFaceWorker
