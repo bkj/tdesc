@@ -53,6 +53,7 @@ class DlibFaceWorker(BaseWorker):
             dets = self.detector(img, 1)
         else:
             dets = [dlib.rectangle(0, img.shape[0], 0, img.shape[1])]
+        
         return img, dets
     
     def featurize(self, path, obj, return_feat=False):
