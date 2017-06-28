@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 """
-    workers.py
+    dlib_worker.py
+    
+    Run `dlib` face featurization
+    
+    !! Could do a better job w/ batching
 """
 
 import os
@@ -18,7 +22,6 @@ def import_dlib():
     global io
     global color
     import dlib
-    import h5py
     from skimage import io
     from skimage import color
 
@@ -27,11 +30,16 @@ class DlibFaceWorker(BaseWorker):
         compute dlib face descriptors 
     """
     
-    def __init__(self, detect=True, num_jitters=10):
+    def __init__(self, num_jitters=10, dnn=False, det_threshold=0.0, upsample=0):
         import_dlib()
-        self.detector = dlib.get_frontal_face_detector()
         
         ppath = os.path.join(os.environ['HOME'], '.tdesc')
+        
+        if not dnn:
+            self.detector = dlib.get_frontal_face_detector()
+        else:
+            detpath = os.path.join(ppath, 'models/dlib/mmod_human_face_detector.dat')
+            self.detector = dlib.face_detection_model_v1(detpath)
         
         shapepath = os.path.join(ppath, 'models/dlib/shape_predictor_68_face_landmarks.dat')
         self.sp = dlib.shape_predictor(shapepath)
@@ -39,25 +47,32 @@ class DlibFaceWorker(BaseWorker):
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
         
-        self.detect = detect
         self.num_jitters = num_jitters
+        self.dnn = dnn
+        self.det_threshold = det_threshold
+        self.upsample = upsample
         
-        print >> sys.stderr, 'DlibFaceWorker: ready (detect=%d | num_jitters=%d)' % (int(detect), int(num_jitters))
+        print >> sys.stderr, 'DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters))
     
     def imread(self, path):
         img = io.imread(path)
         if img.shape[-1] == 4:
             img = color.rgba2rgb(img)
+        elif len(img.shape) == 2:
+            img = color.grey2rgb(img)
         
-        if self.detect:
-            dets = self.detector(img, 1)
+        if not self.dnn:
+            dets, _, _ = self.detector.run(img, self.upsample, self.det_threshold)
         else:
-            dets = [dlib.rectangle(0, img.shape[0], 0, img.shape[1])]
+            dets = []
         
         return img, dets
     
     def featurize(self, path, obj, return_feat=False):
         img, dets = obj
+        if self.dnn:
+            dets, _ = self.detector(img)
+        
         feats = []
         for k,d in enumerate(dets):
             shape = self.sp(img, d)

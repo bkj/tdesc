@@ -18,8 +18,11 @@ def parse_args():
     parser.add_argument('--crow', action="store_true")
     
     # DlibFace options
-    parser.add_argument('--no-detect', action='store_true')
+    parser.add_argument('--dnn', action='store_true')
+    parser.add_argument('--upsample', type=int, default=0)
+    parser.add_argument('--batch-size', type=int, default=0)
     parser.add_argument('--num-jitters', type=int, default=10)
+    parser.add_argument('--det-threshold', type=float, default=0.0)
     
     # Yolo options
     parser.add_argument('--yolo-cfg-path', type=str, required=False)
@@ -45,8 +48,20 @@ if __name__ == "__main__":
         from tdesc.workers import VGG16Worker
         worker = VGG16Worker(args.crow)
     elif args.model == 'dlib_face':
-        from tdesc.workers import DlibFaceWorker
-        worker = DlibFaceWorker(detect=not args.no_detect, num_jitters=args.num_jitters)
+        if not args.batch_size:
+            from tdesc.workers import DlibFaceWorker
+            worker = DlibFaceWorker(**{
+                "dnn" : args.dnn,
+                "num_jitters" : args.num_jitters,
+                "det_threshold" : args.det_threshold,
+                "upsample" : args.upsample,
+            })
+        else:
+            from tdesc.workers import DlibFaceBatchWorker
+            worker = DlibFaceBatchWorker(**{
+                "batch_size" : args.batch_size,
+                "num_jitters" : args.num_jitters
+            })
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker
         worker = YoloWorker(**{
@@ -61,5 +76,5 @@ if __name__ == "__main__":
         raise Exception()
     
     for w in worker.run(io_threads=args.io_threads, timeout=args.timeout):
-        print w
+        pass
 
