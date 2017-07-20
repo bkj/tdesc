@@ -16,7 +16,7 @@ class BaseWorker(object):
     
     print_interval = 25
     
-    def run(self, io_threads):
+    def run(self, io_threads, timeout):
         start_time = time()
         pool = ThreadPoolExecutor(max_workers=io_threads)
         sys.stdin = (line.strip() for line in sys.stdin)
