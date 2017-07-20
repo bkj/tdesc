@@ -10,7 +10,7 @@
 import os
 import sys
 from time import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 class BaseWorker(object):
     
