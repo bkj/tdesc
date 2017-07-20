@@ -12,15 +12,26 @@ import numpy as np
 
 from base import BaseWorker
 
+def limit_mem():
+    cfg = K.tf.ConfigProto()
+    cfg.gpu_options.allow_growth = True
+    cfg.gpu_options.visible_device_list="0"
+    K.set_session(K.tf.Session(config=cfg))
+
 def import_vgg16():
     global VGG16
     global Model
     global image
     global preprocess_input
+    global K
     from keras.applications import VGG16
     from keras.models import Model
     from keras.preprocessing import image
     from keras.applications.vgg16 import preprocess_input
+    
+    from keras import backend as K
+    if K.backend() == 'tensorflow':
+        limit_mem()
 
 class VGG16Worker(BaseWorker):
     """ 
