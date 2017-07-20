@@ -2,6 +2,9 @@
 
 """
     base.py
+    
+    !! Need to figure out how to handle timeouts, since sometimes this wants
+    to be run on a stream coming from the internet that's slow or bursty
 """
 
 import os
@@ -13,7 +16,7 @@ class BaseWorker(object):
     
     print_interval = 25
     
-    def run(self, io_threads, timeout):
+    def run(self, io_threads):
         start_time = time()
         pool = ThreadPoolExecutor(max_workers=io_threads)
         sys.stdin = (line.strip() for line in sys.stdin)
