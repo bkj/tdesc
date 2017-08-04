@@ -9,6 +9,7 @@
 
 import os
 import sys
+import itertools
 from time import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -16,21 +17,31 @@ class BaseWorker(object):
     
     print_interval = 25
     
-    def run(self, io_threads, timeout):
+    def run(self, io_threads, timeout, chunk_size=10000):
         start_time = time()
         pool = ThreadPoolExecutor(max_workers=io_threads)
-        sys.stdin = (line.strip() for line in sys.stdin)
-        for i, obj in enumerate(pool.map(self.do_io, sys.stdin)):
-            if obj[1] is not None:
-                yield self.featurize(*obj)
-                
-                if not i % self.print_interval:
-                    print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
-        
+        gen = (line.strip() for line in sys.stdin)
+        i = 0
+        for chunk in self._chunker(gen, chunk_size):
+            for obj in pool.map(self.do_io, chunk):
+                i += 1
+                if obj[1] is not None:
+                    yield self.featurize(*obj)
+                    
+                    if not i % self.print_interval:
+                        print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+            
         self.close()
+        
+    def _chunker(self, iterable, chunk_size):
+        while True:
+            yield itertools.chain([iterable.next()], itertools.islice(iterable, chunk_size-1))
     
     def do_io(self, req):
-        return (req, self.imread(req))
+        try:
+            return (req, self.imread(req))
+        except:
+            return (req, None)
     
     def close(self):
         pass

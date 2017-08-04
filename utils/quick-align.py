@@ -30,20 +30,22 @@ def parse_args():
     parser.add_argument('--best-face', action='store_true')
     parser.add_argument('--size', type=int, default=150)
     parser.add_argument('--padding', type=float, default=0.25)
+    parser.add_argument('--threshold', type=float, default=0.0)
     parser.add_argument('--outdir', type=str, default='./face_chips/')
+    parser.add_argument('--strip-path', type=int, default=2)
     return parser.parse_args()
 
-def do_work(path, outdir, best_face=False, size=150, padding=0.25):
+def do_work(path, outdir, best_face=False, size=150, padding=0.25, threshold=0.0, strip_path=2):
     try:
         img = np.array(Image.open(path).convert('RGB'))
-        rects, confs, _ = det.run(img)
+        rects, confs, _ = det.run(img, adjust_threshold=threshold)
         
         for k,(rect,conf) in enumerate(zip(rects, confs)):
             
             dirname = os.path.dirname(path)
             # >>
             # !! Drop prefix
-            dirname = '/'.join(dirname.split('/')[2:])
+            dirname = '/'.join(dirname.split('/')[strip_path:])
             # <<
             dirname = os.path.join(outdir, dirname)
             if not os.path.exists(dirname):
@@ -69,7 +71,8 @@ def do_work(path, outdir, best_face=False, size=150, padding=0.25):
             
             if best_face:
                 break
-
+    except KeyboardInterrupt:
+        raise
     except:
         print >> sys.stderr, "do_work: error at %s" % path
     
@@ -84,7 +87,15 @@ if __name__ == "__main__":
     start_time = time()
     
     def f(x):
-        return do_work(x, outdir=args.outdir, best_face=args.best_face, size=args.size, padding=args.padding)
+        return do_work(
+            x, 
+            outdir=args.outdir,
+            best_face=args.best_face,
+            size=args.size,
+            padding=args.padding,
+            threshold=args.threshold,
+            strip_path=args.strip_path,
+        )
     
     with ProcessPoolExecutor(max_workers=16) as execr:
         res = execr.map(f, gen)
