@@ -8,5 +8,5 @@ try:
 except:
     print >> sys.stderr, 'cannot load dlib workers'
 
-from vgg16_worker import VGG16Worker
 from yolo_worker import YoloWorker
+from vgg16_worker import VGG16Worker
