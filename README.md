@@ -8,6 +8,14 @@ Image processing tools
 python setup.py install
 ```
 
+### Dependencies
+
+Different workers depend on different external modules -- installs can be a little complicated, so I'm not including them in `requirements.txt`.  
+
+    vgg16_worker.py: keras w/ tensorflow(-gpu)
+    dlib_worker.py: dlib (https://github.com/davisking/dlib/)
+    yolo_worker.py: darknet fork (https://github.com/bkj/darknet/)
+
 ### Models
 
 #### VGG16
