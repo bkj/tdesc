@@ -29,13 +29,11 @@ class PlacesWorker(BaseWorker):
 
         either crow (avg-pooled last conv) or not crow (classification)
     """
-    def __init__(self, weight_path, name_path, target_dim=256):
+    def __init__(self, weight_path, target_dim=256):
         import_places()
         
         self.model = torch.load(weight_path).cuda()
         _ = self.model.eval()
-        
-        # class_names = np.array([line.strip().split(' ')[0][3:] for line in open(name_path)])
         
         self.prep = transforms.Compose([
             transforms.Scale(256),
@@ -55,6 +53,7 @@ class PlacesWorker(BaseWorker):
         else:
             img = Image.open(path)
             
+        img = img.convert('RGB')
         return self.prep(img)
     
     def _partial_forward(self, model, x):
