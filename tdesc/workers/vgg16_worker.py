@@ -15,7 +15,7 @@ from base import BaseWorker
 def limit_mem():
     cfg = K.tf.ConfigProto()
     cfg.gpu_options.allow_growth = True
-    cfg.gpu_options.visible_device_list="1"
+    cfg.gpu_options.visible_device_list="0"
     K.set_session(K.tf.Session(config=cfg))
 
 def import_vgg16():
