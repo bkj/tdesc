@@ -6,6 +6,7 @@
     cat filenames | python -m tdesc --model vgg16 --crow > feats
 """
 
+import os
 import argparse
 
 def parse_args():
@@ -31,6 +32,12 @@ def parse_args():
     parser.add_argument('--yolo-name-path', type=str, required=False)
     parser.add_argument('--yolo-thresh', type=float, default=0.1)
     parser.add_argument('--yolo-nms', type=float, default=0.3)
+    
+    # Places options
+    parser.add_argument('--places-weight-path', type=str,
+        default=os.path.expanduser('~/.tdesc/models/places/whole_resnet50_places365.pth.tar'))
+    # parser.add_argument('--places-name-path', type=str, 
+    #     default=os.path.expanduser('~/.tdesc/models/places/categories_places365.txt'))
     
     args = parser.parse_args()
     
@@ -74,6 +81,11 @@ if __name__ == "__main__":
             "name_path" : args.yolo_name_path,
             "thresh" : args.yolo_thresh,
             "nms" : args.yolo_nms,
+        })
+    elif args.model == 'places':
+        from tdesc.workers import PlacesWorker
+        worker = PlacesWorker(**{
+            "weight_path" : args.places_weight_path
         })
     else:
         print >> sys.stderr, "tdesc: Unknown model=%s" % args.model
