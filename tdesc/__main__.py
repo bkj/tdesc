@@ -70,8 +70,11 @@ if __name__ == "__main__":
         else:
             from tdesc.workers import DlibFaceBatchWorker
             worker = DlibFaceBatchWorker(**{
+                "dnn" : args.dnn,
+                "num_jitters" : args.num_jitters,
+                "det_threshold" : args.det_threshold,
+                "upsample" : args.upsample,
                 "batch_size" : args.batch_size,
-                "num_jitters" : args.num_jitters
             })
     elif args.model == 'yolo':
         from tdesc.workers import YoloWorker

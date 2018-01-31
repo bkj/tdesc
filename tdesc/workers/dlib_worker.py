@@ -31,26 +31,26 @@ class DlibFaceWorker(BaseWorker):
 
     def __init__(self, num_jitters=10, dnn=False, det_threshold=0.0, upsample=0):
         import_dlib()
-
+        
         ppath = os.path.join(os.environ['HOME'], '.tdesc')
-
+        
         if not dnn:
             self.detector = dlib.get_frontal_face_detector()
         else:
             detpath = os.path.join(ppath, 'models/dlib/mmod_human_face_detector.dat')
             self.detector = dlib.face_detection_model_v1(detpath)
-
+            
         shapepath = os.path.join(ppath, 'models/dlib/shape_predictor_68_face_landmarks.dat')
         self.sp = dlib.shape_predictor(shapepath)
-
+        
         facepath = os.path.join(ppath, 'models/dlib/dlib_face_recognition_resnet_model_v1.dat')
         self.facerec = dlib.face_recognition_model_v1(facepath)
-
+        
         self.num_jitters = num_jitters
         self.dnn = dnn
         self.det_threshold = det_threshold
         self.upsample = upsample
-
+        
         print >> sys.stderr, 'DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters))
 
     def imread(self, path):
