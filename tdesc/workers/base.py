@@ -9,6 +9,7 @@
 
 import os
 import sys
+import json
 import itertools
 from time import time
 from concurrent.futures import ThreadPoolExecutor
@@ -29,7 +30,10 @@ class BaseWorker(object):
                     yield self.featurize(*obj)
                     
                     if not i % self.print_interval:
-                        print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+                        print >> sys.stderr, json.dumps({
+                            "i" : i,
+                            "time" : time() - start_time,
+                        })
             
         self.close()
         
