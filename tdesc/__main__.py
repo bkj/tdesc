@@ -6,6 +6,8 @@
     cat filenames | python -m tdesc --model vgg16 --crow > feats
 """
 
+from __future__ import print_function
+
 import os
 import argparse
 
@@ -42,9 +44,9 @@ def parse_args():
     args = parser.parse_args()
     
     if args.model == 'yolo':
-        assert args.yolo_cfg_path is not None
-        assert args.yolo_weight_path is not None
-        assert args.yolo_nms is not None
+        assert args.yolo_cfg_path is not None, 'args.yolo_cfg_path is None'
+        assert args.yolo_weight_path is not None, 'args.yolo_weight_path is None'
+        assert args.yolo_nms is not None, 'args.yolo_nms is None'
     
     return args
 
@@ -91,7 +93,7 @@ if __name__ == "__main__":
             "weight_path" : args.places_weight_path
         })
     else:
-        print >> sys.stderr, "tdesc: Unknown model=%s" % args.model
+        print("tdesc: Unknown model=%s" % args.model, file=sys.stderr)
         raise Exception()
     
     for w in worker.run(io_threads=args.io_threads, timeout=args.timeout):

@@ -1,2 +1,3 @@
-keras
+keras==2.1.6
 futures
+Pillow==5.1.0

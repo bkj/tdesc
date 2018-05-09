@@ -2,17 +2,27 @@
 
 Image processing tools
 
-### Setup
+### Installation
+
+Installation in a `conda` environment is highly recommended:
 
 ```
+# Create conda environment
+conda create -n tdesc_env python=2.7 pip -y
+source activate tdesc_env
+
+# Install dependencies
+pip install -r requirements.txt
+
+conda install -y -c anaconda tensorflow-gpu 
+# Install `tdesc`
 python setup.py install
 ```
 
-### Dependencies
+##### Other Dependencies
 
-Different workers depend on different external modules -- installs can be a little complicated, so I'm not including them in `requirements.txt`.  
+Some workers depend on different external modules -- installs can be a little complicated, so I'm not including them in `requirements.txt`.  Open an issue for help, but roughly:
 
-    vgg16_worker.py: keras w/ tensorflow(-gpu)
     dlib_worker.py: dlib (https://github.com/davisking/dlib/)
     yolo_worker.py: darknet fork (https://github.com/bkj/darknet/)
 

@@ -7,6 +7,8 @@
     to be run on a stream coming from the internet that's slow or bursty
 """
 
+from __future__ import print_function
+
 import os
 import sys
 import json
@@ -30,10 +32,10 @@ class BaseWorker(object):
                     yield self.featurize(*obj)
                     
                     if not i % self.print_interval:
-                        print >> sys.stderr, json.dumps({
+                        print(json.dumps({
                             "i" : i,
                             "time" : time() - start_time,
-                        })
+                        }), file=sys.stderr)
             
         self.close()
         
@@ -45,6 +47,7 @@ class BaseWorker(object):
         try:
             return (req, self.imread(req))
         except:
+            print('BaseWorker.do_io: error at %s' % str(req), file=sys.stderr)
             return (req, None)
     
     def close(self):

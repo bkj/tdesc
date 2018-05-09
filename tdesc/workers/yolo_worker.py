@@ -4,6 +4,9 @@
     yolo_worker.py
 """
 
+from __future__ import print_function
+
+import os
 import sys
 import urllib
 import contextlib
@@ -33,12 +36,16 @@ class DetBBox(object):
 class YoloWorker(BaseWorker):
     def __init__(self, cfg_path, weight_path, name_path, thresh=0.1, nms=0.3, target_dim=416):
         import_yolo()
-
+        
+        cfg_path    = os.path.expanduser(cfg_path)
+        weight_path = os.path.expanduser(weight_path)
+        name_path   = os.path.expanduser(name_path)
+        
         DarknetObjectDetector.set_device(0)
         self.target_dim = target_dim
         self.class_names = open(name_path).read().splitlines()
         self.det = DarknetObjectDetector(cfg_path, weight_path, thresh, nms, 0)
-        print >> sys.stderr, 'YoloWorker: ready'
+        print('YoloWorker: ready', file=sys.stderr)
 
     def imread(self, path):
         if path[:4] == 'http':
@@ -57,7 +64,7 @@ class YoloWorker(BaseWorker):
         for bbox in bboxes:
             class_name = self.class_names[bbox.cls]
             if not return_feat:
-                print '\t'.join(map(str, [
+                print('\t'.join(map(str, [
                     meta,
                     class_name,
                     bbox.confidence,
@@ -65,7 +72,7 @@ class YoloWorker(BaseWorker):
                     bbox.bottom,
                     bbox.left,
                     bbox.right
-                ]))
+                ])))
                 sys.stdout.flush()
             else:
                 feats.append({
@@ -78,5 +85,5 @@ class YoloWorker(BaseWorker):
             return meta, feats
 
     def close(self):
-        print >> sys.stderr, 'YoloWorker: terminating'
+        print('YoloWorker: terminating', file=sys.stderr)
         pass

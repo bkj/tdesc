@@ -8,6 +8,8 @@
     !! Could do a better job w/ batching
 """
 
+from __future__ import print_function
+
 import os
 import sys
 
@@ -51,7 +53,7 @@ class DlibFaceWorker(BaseWorker):
         self.det_threshold = det_threshold
         self.upsample = upsample
         
-        print >> sys.stderr, 'DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters))
+        print('DlibFaceWorker: ready (dnn=%d | num_jitters=%d)' % (int(dnn), int(num_jitters)), file=sys.stderr)
 
     def imread(self, path):
         img = io.imread(path)
@@ -78,12 +80,12 @@ class DlibFaceWorker(BaseWorker):
             face_descriptor = self.facerec.compute_face_descriptor(img, shape, self.num_jitters)
 
             if not return_feat:
-                print '\t'.join((
+                print('\t'.join((
                     path,
                     str(k),
                     '\t'.join(map(str, [d.top(),d.bottom(),d.left(),d.right()])),
                     '\t'.join(map(str, face_descriptor))
-                ))
+                )))
                 sys.stdout.flush()
             else:
                 feats.append({
@@ -96,4 +98,4 @@ class DlibFaceWorker(BaseWorker):
             return path, feats
 
     def close(self):
-        print >> sys.stderr, 'DlibFaceWorker: terminating'
+        print('DlibFaceWorker: terminating', file=sys.stderr)

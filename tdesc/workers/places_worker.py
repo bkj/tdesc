@@ -4,6 +4,8 @@
     vgg16_worker.py
 """
 
+from __future__ import print_function
+
 import sys
 import urllib
 import contextlib
@@ -42,7 +44,7 @@ class PlacesWorker(BaseWorker):
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
         
-        print >> sys.stderr, 'PlacesWorker: ready'
+        print('PlacesWorker: ready', file=sys.stderr)
         
     def imread(self, path):
         if 'http' == path[:4]:
@@ -91,11 +93,11 @@ class PlacesWorker(BaseWorker):
         feat = feat.data.cpu().numpy().squeeze()
         
         if not return_feat:
-            print '\t'.join([path] + map(str, feat))
+            print('\t'.join([path] + map(str, feat)))
             sys.stdout.flush()
         else:
             return path, feat
         
     def close(self):
-        print >> sys.stderr, 'PlacesWorker: terminating'
+        print('PlacesWorker: terminating', file=sys.stderr)
         pass

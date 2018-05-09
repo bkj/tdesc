@@ -4,6 +4,8 @@
     naive-runny.py
 """
 
+from __future__ import print_function
+
 import os
 import sys
 import argparse
@@ -48,7 +50,7 @@ if __name__ == "__main__":
             worker.featurize(path, worker.imread(path))
             
             if not (i + 1) % 100:
-                print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+                print("%d images | %f seconds " % (i, time() - start_time), file=sys.stderr)
             
         except KeyboardInterrupt:
             raise
@@ -57,4 +59,4 @@ if __name__ == "__main__":
             raise e
             os._exit(0)
     
-    print >> sys.stderr, "%d images | %f seconds " % (i, time() - start_time)
+    print("%d images | %f seconds " % (i, time() - start_time), file=sys.stderr)
