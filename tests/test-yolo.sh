@@ -5,7 +5,7 @@
 # Test tdesc.yolo
 # !! This might be tricky to install -- open an issue for support.
 
-export PYTHONPATH="../lib"
+export PYTHONPATH="path/to/darknet/.so/files"
 
 YOLO_CFG_PATH="~/.tdesc/yolo/yolo-custom.cfg"
 YOLO_WEIGHT_PATH="~/.tdesc/yolo/yolo-custom_final.weights"
