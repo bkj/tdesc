@@ -14,7 +14,8 @@ source activate tdesc_env
 # Install dependencies
 pip install -r requirements.txt
 
-conda install -y -c anaconda tensorflow-gpu 
+conda install -y -c anaconda tensorflow-gpu # Can skip if you want to use yolo/dlib workers
+
 # Install `tdesc`
 python setup.py install
 ```
